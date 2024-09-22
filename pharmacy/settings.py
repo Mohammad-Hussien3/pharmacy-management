@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'register',
+    'channels',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +73,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ['*']
 
+
 ROOT_URLCONF = 'pharmacy.urls'
 
 TEMPLATES = [
@@ -89,7 +92,13 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'pharmacy.wsgi.application'
+ASGI_APPLICATION = 'pharmacy.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
 
 
 # Database
