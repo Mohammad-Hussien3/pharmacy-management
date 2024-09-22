@@ -1,2 +1,4 @@
 pharmacy/__pycache__/
 db.sqlite3
+register/__pycache__/
+register/migrations/__pycache__/
