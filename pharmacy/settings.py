@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-3qf!upb#qzrlim5uy9r3@x2olj&ss89a&c7!3ymin$73ev^+hh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'register',
     'channels',
-    'chat',
+    'chatapp',
 ]
 
 MIDDLEWARE = [
@@ -70,9 +70,6 @@ SIMPLE_JWT = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
-
-ALLOWED_HOSTS = ['*']
-
 
 ROOT_URLCONF = 'pharmacy.urls'
 

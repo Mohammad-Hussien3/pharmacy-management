@@ -3,11 +3,13 @@ from django.http import JsonResponse
 from rest_framework import status
 import json
 from .serializers import UserSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .tokens import CustomToken
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from django.contrib.auth.models import User
+
 
 # Create your views here.
 
@@ -64,3 +66,13 @@ class LogIn(APIView):
 
 class CustomTokenRefreshView(TokenRefreshView):
     serializer_class = TokenRefreshSerializer
+
+
+class AllUsers(APIView):
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        users = User.objects.all()
+        jsonUsers = [user.id for user in users]
+        return JsonResponse(jsonUsers, safe=False, status=status.HTTP_200_OK)
