@@ -1,6 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from channels.db import database_sync_to_async
+import asyncio
 
 class ChatConsumer(AsyncWebsocketConsumer):
 
@@ -30,7 +31,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def getLastMessages(self):
         from .models import Messages
-        return Messages.objects.filter(chatRoom=self.room).order_by('-time')
+        return list(Messages.objects.filter(chatRoom=self.room).order_by('time'))
     
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -48,11 +49,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         lastMessages = await self.getLastMessages()
-        async for message in lastMessages:
+        for message in lastMessages:
             await self.send(text_data=json.dumps({
                 'message': message.content,
                 'id':message.id
             }))
+            await asyncio.sleep(0.05)
     
 
     async def disconnect(self, close_code):
@@ -81,4 +83,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         await self.send(text_data=json.dumps({
             'message': message,
+            'id':self.senderId
         }))
