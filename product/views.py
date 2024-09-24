@@ -15,3 +15,10 @@ class AllProducts(APIView):
         products = Product.objects.all()
         jsonProducts = [ProductSerializer(product) for product in products]
         return JsonResponse(jsonProducts, safe=False, status=status.HTTP_202_ACCEPTED)
+    
+class AddProduct(APIView):
+
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        pass
