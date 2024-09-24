@@ -70,9 +70,19 @@ class CustomTokenRefreshView(TokenRefreshView):
 
 class AllUsers(APIView):
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         users = User.objects.all()
-        jsonUsers = [user.id for user in users]
+        jsonUsers = [UserSerializer(user).data for user in users]
         return JsonResponse(jsonUsers, safe=False, status=status.HTTP_200_OK)
+    
+
+class LogOut(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, id):
+        user = User.objects.get(id=id)
+        user.delete()
+        return JsonResponse({'message':'success'}, status=status.HTTP_200_OK)
