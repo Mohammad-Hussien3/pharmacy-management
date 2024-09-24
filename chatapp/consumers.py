@@ -26,13 +26,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         from .models import Messages
         message = Messages.objects.create(content=content, whoSend=user, chatRoom=self.room)
         message.save()
+
+    @database_sync_to_async
+    def getLastMessages(self):
+        from .models import Messages
+        return Messages.objects.filter(chatRoom=self.room).order_by('-time')
     
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
-        self.senderId = self.scope['url_route']['kwargs']['senderId']
-        self.receiverId = self.scope['url_route']['kwargs']['receiverId']
+        self.senderId = int(self.scope['url_route']['kwargs']['senderId'])
+        self.receiverId = int(self.scope['url_route']['kwargs']['receiverId'])
         self.room_group_name = f'chat_{self.room_name}_{min(self.senderId, self.receiverId)}_{max(self.senderId, self.receiverId)}'
-
+        
         user = await self.getUser(self.receiverId)
         self.room = await self.getChatRoom(self.room_group_name, user)
 
@@ -41,6 +46,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         await self.accept()
+
+        lastMessages = await self.getLastMessages()
+        async for message in lastMessages:
+            await self.send(text_data=json.dumps({
+                'message': message.content,
+                'id':message.id
+            }))
+    
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
