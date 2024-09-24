@@ -4,3 +4,5 @@ register/__pycache__/
 register/migrations/__pycache__/
 chatapp/__pycache__/
 chatapp/migrations/__pycache__/
+product/__pycache__/
+product/migrations/__pycache__/

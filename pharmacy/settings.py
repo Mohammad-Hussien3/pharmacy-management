@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'register',
     'channels',
     'chatapp',
+    'product',
 ]
 
 MIDDLEWARE = [
