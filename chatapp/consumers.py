@@ -31,7 +31,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def getLastMessages(self):
         from .models import Messages
-        return list(Messages.objects.filter(chatRoom=self.room).order_by('time'))
+        return list(Messages.objects.filter(chatRoom=self.room).order_by('-time'))
     
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
