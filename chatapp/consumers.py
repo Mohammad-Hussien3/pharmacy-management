@@ -27,11 +27,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         from .models import Messages
         message = Messages.objects.create(content=content, whoSend=user, chatRoom=self.room)
         message.save()
+        return message
 
     @database_sync_to_async
     def getLastMessages(self):
         from .models import Messages
         return list(Messages.objects.filter(chatRoom=self.room).order_by('-time'))
+    
+    @database_sync_to_async
+    def getId(self, message):
+        return message.whoSend.id
     
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
@@ -51,11 +56,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         lastMessages = await self.getLastMessages()
         for message in lastMessages:
+            userId = await self.getId(message)
             await self.send(text_data=json.dumps({
                 'message': message.content,
-                'id':message.id
+                'id':message.id,
+                'userId':userId
             }))
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.07)
     
 
     async def disconnect(self, close_code):
@@ -69,20 +76,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
 
         user = await self.getUser(self.senderId)
-        await self.saveMessage(message, user)
+        message = await self.saveMessage(message, user)
 
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message,
+                'message': message.content,
+                'id':message.id,
+                'userId': await self.getId(message)
             }
         )
 
     async def chat_message(self, event):
         message = event['message']
-
+        id = event['id']
+        userId = event['userId']
         await self.send(text_data=json.dumps({
             'message': message,
-            'id':self.senderId
+            'id':id,
+            'userId':userId
         }))
